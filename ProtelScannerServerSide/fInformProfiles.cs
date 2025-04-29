@@ -1,3 +1,6 @@
+﻿using System.Net.Http.Json;
+using System.Net.Http;
+using Microsoft.AspNetCore.SignalR.Client;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,6 +24,7 @@ using ProtelScannerServerSide.Enums;
 using ProtelScannerServerSide.Helpers;
 using ProtelScannerServerSide.MainLogic;
 using ProtelScannerServerSide.Models;
+using System.Threading.Tasks;
 
 namespace ProtelScannerServerSide;
 
@@ -54,11 +58,20 @@ public class fInformProfiles : Form
 
 	private List<GenderModel> genders;
 
-	private byte[] _Buffer = new byte[1024];
+    private byte[] _Buffer = new byte[1024];
 
 	private Socket _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-	private List<DocDescr> mDocumentDescrList;
+
+    // SignalR connection for MRZ push
+    private HubConnection _hub;
+    private readonly string _sessionId = Guid.NewGuid().ToString();
+
+	   // (Will bind this ComboBox in the designer)
+    private ComboBox ctlPhones;
+    private Button btnConnectScanner;
+
+    private List<DocDescr> mDocumentDescrList;
 
 	private string mRowsSeparator = "\r\n";
 
@@ -276,7 +289,7 @@ public class fInformProfiles : Form
 		Connection = "server=" + OdbcServer + ";user id=" + OdbcUser + ";password=" + OdbcPass + ";database=" + OdbcDB + ";";
 	}
 
-	private void fInformProfiles_Load(object sender, EventArgs e)
+	private async void fInformProfiles_Load(object sender, EventArgs e)
 	{
 		try
 		{
@@ -326,12 +339,11 @@ public class fInformProfiles : Form
 			}
 			DocsDescrParser ddp = new DocsDescrParser();
 			mDocumentDescrList = ddp.GetDocsDescrList(sPath + "Documents.xml");
-			if (!SetupServer())
-			{
-				MessageBox.Show("Error on socket initialization", "Error", MessageBoxButtons.OK, MessageBoxIcon.Hand);
-				Close();
-			}
-			nationalities = mainFlow.GetNationalities();
+
+               // initialize our SignalR‐based scanner registry
+			await InitializeScannerHubAsync();
+
+            nationalities = mainFlow.GetNationalities();
 			ctlNationality.Items.Clear();
 			ctlCountry.Items.Clear();
 			if (nationalities != null)
@@ -397,7 +409,31 @@ public class fInformProfiles : Form
 		}
 	}
 
-	private void MakeGrid()
+    private async Task InitializeScannerHubAsync()
+    {
+        // 1) fetch the list of available phones
+        var client = new HttpClient();
+        var phones = await client.GetFromJsonAsync<List<string>>("https://<your-api>/api/devices/available");
+        ctlPhones.DataSource = phones;
+
+        // 2) start SignalR
+        _hub = new HubConnectionBuilder()
+            .WithUrl($"https://<your-api>/scanHub?sessionId={_sessionId}")
+            .WithAutomaticReconnect()
+            .Build();
+
+        // 3) handle incoming MRZ payloads
+        _hub.On<string>("ReceiveMrz", payload =>
+        {
+            // reuse your existing parser/display
+            SetText(payload);
+        });
+
+        await _hub.StartAsync();
+    }
+
+
+    private void MakeGrid()
 	{
 		grdProf.DataSource = null;
 		grdProf.AutoGenerateColumns = true;
@@ -1327,4 +1363,30 @@ public class fInformProfiles : Form
 		this.grbBottom.ResumeLayout(false);
 		base.ResumeLayout(false);
 	}
+
+    private async void btnConnectScanner_Click(object sender, EventArgs e)
+    {
+        var deviceId = ctlPhones.SelectedItem as string;
+        if (string.IsNullOrEmpty(deviceId))
+            return;
+
+        bool locked = await _hub.InvokeAsync<bool>("RequestScan", _sessionId, deviceId);
+        if (!locked)
+            MessageBox.Show("This phone is already in use. Please select another.");
+        else
+            ctlPhones.Items.Remove(deviceId);
+    }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (_hub != null)
+        {
+            _hub.InvokeAsync("ReleaseLocks", _sessionId).Wait();
+            _hub.StopAsync().Wait();
+        }
+        base.OnFormClosing(e);
+    }
+
+
+
 }

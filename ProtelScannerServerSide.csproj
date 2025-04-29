@@ -4,7 +4,7 @@
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>True</UseWindowsForms>
-    <TargetFramework>net452</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <Prefer32Bit>True</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -15,22 +15,25 @@
     <ApplicationIcon>app.ico</ApplicationIcon>
     <RootNamespace />
   </PropertyGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.4" />
+    <PackageReference Include="System.Net.Http.Json" Version="9.0.4" />
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\log4net.dll</HintPath>
+      <HintPath>..\..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System.Core" />
     <Reference Include="MrzParser">
-      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\MrzParser.dll</HintPath>
+      <HintPath>..\..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\MrzParser.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="Dapper">
-      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Dapper.dll</HintPath>
+      <HintPath>..\..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Dapper.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

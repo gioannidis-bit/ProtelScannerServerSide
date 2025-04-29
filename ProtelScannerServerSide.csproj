@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>ProtelScannerServerSide</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net452</TargetFramework>
+    <Prefer32Bit>True</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core" />
+    <Reference Include="MrzParser">
+      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\MrzParser.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="Dapper">
+      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\ver. 1.0.10.6\Server\Protel Scanner Client Socket\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
